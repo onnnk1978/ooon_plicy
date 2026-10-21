@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<!-- OGP -->
+<meta property="og:title" content="OOON ブラウザで遊べるファンタジーRPG">
+<meta property="og:description" content="大陸を旅し、依頼をこなし、世代を紡ぐ。">
+<meta property="og:image" content="https://assets.st-note.com/img/1782485584-qi0NeXOl7tJsdcrZApx8R5am.png">
+<meta property="og:url" content="https://book-of-ooon.pages.dev/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="OOON">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="OOON ブラウザで遊べるファンタジーRPG">
+<meta name="twitter:description" content="大陸を旅し、依頼をこなし、世代を紡ぐ。">
+<meta name="twitter:image" content="https://assets.st-note.com/img/1782485584-qi0NeXOl7tJsdcrZApx8R5am.png">
+<title>OOON</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="screen">
+
+<!-- ══════════ TITLE ══════════ -->
+<div id="title-screen">
+ <div id="title-img-area" style="display:none;width:min(360px,90vw);margin:0 auto 12px;border-radius:4px;overflow:hidden">
+  <img id="title-img" src="" alt="" draggable="false" style="width:100%;display:block;object-fit:cover;max-height:200px;user-select:none">
+ </div>
+ <div style="font-family:'Press Start 2P',monospace;font-size:calc(var(--font-lg) + 12px);color:#f0ece0;text-align:center;letter-spacing:6px;margin:10px auto 4px;width:min(360px,90vw)">OOON</div>
+ <div style="font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 2px);color:#d8d0c0;text-align:center;margin-bottom:12px;letter-spacing:1px">ver.2026101202</div>
+ <button class="title-btn" onclick="showCharGen()">▶ NEW ADVENTURE</button>
+ <div id="save-slots-container" style="width:100%;max-width:320px;margin:8px 0"></div>
+ <!-- 旧API互換用の非表示要素 -->
+ <div id="continue-btn" style="display:none"></div>
+ <div id="save-info" style="display:none"></div>
+ <div id="delete-save-btn" style="display:none"></div>
+ <div style="margin-top:24px;text-align:center">
+  <div style="width:min(360px,90vw);margin:0 auto 10px;padding:8px 10px;background:#2a1f08;border:1px solid #6a5220;border-radius:4px;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 2px);color:#e0c88a;text-align:center;line-height:1.5">
+   💡 しばらく開かないとセーブデータが消える場合があります（特にiPhone/iPad）。<br>スマホの「ホーム画面に追加」して遊ぶか、定期的なセーブデータ書き出しをおすすめします。
+  </div>
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSeoGozIgwWyldsfqyWGXbRdu6wAB8MbqvFZngTFNChlg1d6GQ/viewform?usp=publish-editor" target="_blank" rel="noopener"
+   style="color:#887860;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 3px);text-decoration:underline;opacity:0.7">感想・バグ報告はこちら</a>
+  <br>
+  <a href="javascript:void(0)" onclick="showChangelogModal()"
+   style="color:#887860;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 3px);text-decoration:underline;opacity:0.7;display:inline-block;margin-top:8px">更新履歴</a>
+ </div>
+</div>
+
+<!-- ══════════ WORLD MAP MODAL ══════════ -->
+<div id="world-map-modal" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:9999;overflow-y:auto;-webkit-overflow-scrolling:touch">
+ <div style="max-width:560px;margin:0 auto;padding:20px 16px 40px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:sticky;top:0;background:rgba(10,8,4,0.95);padding:10px 0;z-index:1">
+   <div style="font-family:'Press Start 2P',monospace;font-size:calc(var(--font-base) - 1px);color:#f0ece0;letter-spacing:1px"> 世界地図</div>
+   <button onclick="hideWorldMapModal()" style="background:#1a1206;border:1px solid #6a5220;color:#e0d0c0;font-family:system-ui,sans-serif;font-size:var(--font-sm);padding:5px 12px;cursor:pointer;border-radius:3px">閉じる</button>
+  </div>
+  <img src="" id="world-map-img" alt="世界地図" onclick="openWorldMapFullView()" style="width:100%;display:block;border-radius:4px;border:1px solid #3a2f1a;cursor:pointer">
+  <div style="text-align:center;color:#a89878;font-size:calc(var(--font-sm) - 2px);margin-top:8px">タップで新しいタブに拡大表示</div>
+ </div>
+</div>
+
+<!-- ══════════ CHANGELOG MODAL ══════════ -->
+<div id="changelog-modal" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;-webkit-overflow-scrolling:touch">
+ <div style="max-width:520px;margin:0 auto;padding:20px 16px 40px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:sticky;top:0;background:rgba(10,8,4,0.95);padding:10px 0;z-index:1">
+   <div style="font-family:'Press Start 2P',monospace;font-size:calc(var(--font-base) - 1px);color:#f0ece0;letter-spacing:1px"> 更新履歴</div>
+   <button onclick="hideChangelogModal()" style="background:#1a1206;border:1px solid #6a5220;color:#e0d0c0;font-family:system-ui,sans-serif;font-size:var(--font-sm);padding:5px 12px;cursor:pointer;border-radius:3px">閉じる</button>
+  </div>
+  <div style="margin-bottom:14px">
+   <a href="https://note.com/real_pigeon8854/n/na159750dc998" target="_blank" rel="noopener" style="color:#e0c88a;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 1px);text-decoration:underline"> noteでも開発記録を公開中</a>
+  </div>
+  <div id="changelog-list"></div>
+ </div>
+</div>
+
+
+<!-- ══════════ CHAR GEN ══════════ -->
+<div id="chargen" class="hidden">
+ <h2> キャラクター作成</h2>
+ <div class="cg-hint">3D6を各能力値に振る。後で変更できない！</div>
+
+ <div class="cg-section">
+ <h3> 能力値</h3>
+ <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:8px">
+  <span style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0" id="stat-edit-label">手動入力：オフ</span>
+  <label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer">
+   <input type="checkbox" id="stat-edit-toggle" onchange="toggleStatEdit()" style="opacity:0;width:0;height:0;position:absolute">
+   <span id="stat-edit-track" style="position:absolute;inset:0;border-radius:12px;background:#2a1a0a;border:1px solid #484848;transition:background 0.2s"></span>
+   <span id="stat-edit-thumb" style="position:absolute;left:2px;top:2px;width:18px;height:18px;border-radius:50%;background:#665533;transition:left 0.2s,background 0.2s"></span>
+  </label>
+ </div>
+ <div class="cg-row"><label>強さ</label><input type="number" id="a-st" value="10" min="1" max="99" readonly></div>
+ <div class="cg-row"><label>知力</label><input type="number" id="a-iq" value="10" min="1" max="99" readonly></div>
+ <div class="cg-row"><label>運　</label><input type="number" id="a-lk" value="10" min="1" max="99" readonly></div>
+ <div class="cg-row"><label>体力</label><input type="number" id="a-con" value="10" min="1" max="99" readonly></div>
+ <div class="cg-row"><label>器用さ</label><input type="number" id="a-dex" value="10" min="1" max="99" readonly></div>
+ <div class="cg-row"><label>魅力</label><input type="number" id="a-chr" value="10" min="1" max="99" readonly></div>
+ <div class="cg-row"><label>素早さ</label><input type="number" id="a-spd" value="10" min="1" max="99" readonly></div>
+ <div class="stat-preview" id="adds-preview">
+ <div class="sp-cell">戦闘力修正<span id="prev-adds">0</span></div>
+ <div class="sp-cell">積載量<span id="prev-wt">1000</span></div>
+ <div class="sp-cell">開始所持金<span id="prev-gp">?</span></div>
+ <div class="sp-cell">レベル<span>1</span></div>
+ </div>
+ <div style="font-size:calc(var(--font-lg) + 4px);color:#c8b8a0;margin:6px 4px 2px" id="stat-after-race-label">◆ 種族補正後ステータス</div>
+ <div class="stat-preview" id="stat-after-race" style="grid-template-columns:repeat(7,1fr)"></div>
+ <button class="cg-btn rand" onclick="rollStats()" style="margin-top:10px"> サイコロを振る（3D6）</button>
+ </div>
+
+ <div class="cg-section">
+ <h3> 種族</h3>
+ <div class="cg-row">
+ <label>種族</label>
+ <select id="a-race" onchange="updateRaceInfo();updateAddsPreview();updateSizeDisplay()">
+ <option value="human">人間</option>
+ <option value="elf">エルフ</option>
+ <option value="dwarf">ドワーフ</option>
+ <option value="halfling">ハーフリング</option>
+ <option value="fairy">フェアリー</option>
+ <option value="leprechaun">レプラコーン</option>
+ <option value="troll">トロール（上級者向け）</option>
+ <option value="ogre">オーガ（上級者向け）</option>
+ <option value="orc">オーク</option>
+ <option value="goblin">ゴブリン</option>
+ </select>
+ </div>
+ <div class="race-info" id="race-info">人間: 全能力値 ×1（補正なし）</div>
+ </div>
+
+ <div class="cg-section">
+ <h3> 体格</h3>
+ <div class="cg-row">
+  <label>身長</label>
+  <input type="number" id="a-height" value="" placeholder="?" readonly style="width:80px">
+  <span style="color:#c8b8a0;font-size:calc(var(--font-sm) - 1px);margin-left:4px">cm</span>
+  <button onclick="rollHeight()" style="background:none;border:1px solid #444;color:#e0d8c8;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 3px);padding:4px 6px;cursor:pointer;border-radius:2px;margin-left:8px">振る</button>
+ </div>
+ <div class="cg-row" style="margin-top:6px">
+  <label>体重</label>
+  <input type="number" id="a-weight" value="" placeholder="?" readonly style="width:80px">
+  <span style="color:#c8b8a0;font-size:calc(var(--font-sm) - 1px);margin-left:4px">kg</span>
+  <button onclick="rollWeight()" style="background:none;border:1px solid #444;color:#e0d8c8;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 3px);padding:4px 6px;cursor:pointer;border-radius:2px;margin-left:8px">振る</button>
+ </div>
+ <div class="cg-hint" style="margin-top:6px">人間基準（身長125〜210cm・体重35〜170kg）でランダムに決め、種族補正をかけます。それぞれ何度でも振り直せます。</div>
+ </div>
+
+ <div class="cg-section">
+ <h3> 職業</h3>
+ <div class="type-card warrior selected" id="card-warrior" onclick="selectType('warrior')">
+ <h4> 戦士</h4>
+ <p>防具・盾の防護値が2倍。魔法は使えないが武器は何でも使える。強さ重視向き。条件を満たせば片手武器を2つ同時装備できる。</p>
+ </div>
+ <div class="type-card wizard" id="card-wizard" onclick="selectType('wizard')">
+ <h4> 魔法使い</h4>
+ <p>全レベル1呪文を習得済み。ダガー・杖のみ。知力≥10、器用さ≥8 必須。</p>
+ </div>
+ <div class="type-card rogue" id="card-rogue" onclick="selectType('rogue')">
+ <h4> 盗賊</h4>
+ <p>防具ボーナスなし。盗賊ギルドで呪文を習得可能（通常の2倍の費用）。能力値要件なし。</p>
+ </div>
+ <div id="type-warn" class="cg-hint hidden" style="color:#e0d0d0">※ 魔法使いは知力≥10、器用さ≥8が必要です</div>
+ </div>
+
+ <div class="cg-section">
+ <h3> 名前と所持金</h3>
+ <div class="cg-row">
+ <label>名前</label>
+ <input type="text" id="a-name" value="Mantaro" style="background:var(--ink);border:2px solid var(--border);color:var(--white2);font-family:system-ui,sans-serif;font-size:var(--font-base);padding:7px;border-radius:3px;width:150px">
+ <button onclick="document.getElementById('a-name').value=pickNPC()" style="background:none;border:1px solid #444;color:#e0d8c8;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 3px);padding:4px 6px;cursor:pointer;border-radius:2px;margin-left:6px" title="ランダムな名前">ランダム</button>
+ </div>
+ <div class="cg-hint" style="margin-top:6px">開始GP: 3D6×10（<button onclick="rollGold()" style="background:none;border:1px solid #444;color:#e0d8c8;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 3px);padding:4px 6px;cursor:pointer;border-radius:2px">振る</button>）= <span id="gp-result" style="color:#f0ece0">?</span> GP</div>
+ </div>
+
+ <button class="cg-btn start" onclick="startGame()">▶ 冒険を始める！</button>
+ <div style="height:16px"></div>
+</div>
+
+<!-- ══════════ SHOP ══════════ -->
+<div id="shop-area" class="hidden">
+ <h2> MARKET（装備購入）</h2>
+ <div style="font-size:calc(var(--font-base) + 1px);color:#f0ece0;margin-bottom:12px">所持金: <span id="shop-gp">-</span> ／ 所持重量: <span id="shop-wt">0</span>/<span id="shop-maxwt">-</span></div>
+ <div id="shop-list"></div>
+ <button class="cg-btn start" style="margin-top:12px" onclick="finishShopping()">▶ 購入完了して冒険へ！</button>
+ <div style="height:16px"></div>
+</div>
+
+<!-- ══════════ GAME ══════════ -->
+<div id="game" class="hidden" style="display:none;flex-direction:column;height:100%">
+ <div id="hdr">
+ <div id="hdr-title"></div>
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0" id="hdr-char">-</div>
+ <div id="hdr-date" style="font-size:calc(var(--font-sm) - 1px);color:#f0ece0">-</div>
+ <div style="display:flex;align-items:center;gap:6px">
+ <button onclick="saveGame()" style="background:#150f06;border:1px solid var(--rust);color:var(--white2);font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 3px);padding:4px 7px;cursor:pointer;border-radius:3px" title="セーブ">&#128190;</button>
+ <button id="dbg-open-btn" onclick="showDebugPanel()" style="background:#1a0030;border:1px solid #664488;color:#cc88ff;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 3px);padding:4px 7px;cursor:pointer;border-radius:3px" title="テスト">DBG</button>
+ 
+ <button onclick="showFontSizePanel()" style="background:var(--info-bg);border:1px solid #484848;color:#e8e0d8;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 3px);padding:4px 7px;cursor:pointer;border-radius:3px" title="文字サイズ設定">&#9881;</button>
+ <button onclick="showInventory()" style="background:#150f06;border:1px solid var(--rust);color:#c0b098;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 3px);padding:4px 7px;cursor:pointer;border-radius:3px" title="ステータス">STATUS</button>
+  
+ </div>
+ </div>
+
+ <!-- ══ 左ペイン（デスクトップ: ミニHUD + 詳細ステータス）══ -->
+ <div id="left-pane">
+
+ <!-- ミニHUD（デスクトップ最上部）-->
+ <div id="dt-mini-hud">
+ <div class="mh-top">
+ <div class="mh-name" id="mh-name">-</div>
+ <div class="mh-save">
+ <button onclick="saveGame()" style="background:#150f06;border:1px solid var(--rust);color:var(--white2);font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 4px);padding:3px 6px;cursor:pointer;border-radius:2px" title="セーブ">&#128190;</button>
+ <button onclick="showFontSizePanel()" style="background:var(--info-bg);border:1px solid #484848;color:#e8e0d8;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 4px);padding:3px 6px;cursor:pointer;border-radius:2px;margin-left:2px" title="文字サイズ設定">&#9881;</button>
+ </div>
+ </div>
+ <div class="mh-date" id="mh-date">-</div>
+ <div class="mh-bars" id="mh-bars"></div>
+ </div>
+
+ <!-- 詳細ステータスパネル（常時表示） -->
+ <div id="left-scroll">
+ <!-- STATUS OVERLAY -->
+ <div id="inv-panel" style="margin:0;flex-shrink:0">
+
+ <!-- タブ -->
+ <div style="display:flex;gap:4px;margin-bottom:8px">
+ <button class="stat-tab-btn active" id="tab-status" onclick="switchStatTab('status')" style="flex:1;background:var(--panel);border:2px solid var(--gold);color:#f0ece0;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 1px);padding:8px;cursor:pointer;border-radius:3px 3px 0 0"> ステータス</button>
+ <button class="stat-tab-btn" id="tab-equip" onclick="switchStatTab('equip')" style="flex:1;background:var(--panel);border:2px solid var(--bark);color:#c8b8a0;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 1px);padding:8px;cursor:pointer;border-radius:3px 3px 0 0"> 装備</button>
+ <button class="stat-tab-btn" id="tab-party" onclick="switchStatTab('party')" style="flex:1;background:var(--panel);border:2px solid var(--bark);color:#c8b8a0;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 1px);padding:8px;cursor:pointer;border-radius:3px 3px 0 0"> 仲間</button>
+ <button class="stat-tab-btn" id="tab-log" onclick="switchStatTab('log')" style="flex:1;background:var(--panel);border:2px solid var(--bark);color:#c8b8a0;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 1px);padding:8px;cursor:pointer;border-radius:3px 3px 0 0"> 記録</button>
+ <button id="sp-close-btn" onclick="closeInventory()" style="background:#0a0a0a;border:2px solid var(--bark);color:#c8b8a0;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 1px);padding:8px 10px;cursor:pointer;border-radius:3px 3px 0 0" title="閉じる">X</button>
+ </div>
+
+ <!-- ステータスタブ -->
+ <div id="stpanel-status" style="background:var(--ink);border:2px solid var(--border);border-radius:0 4px 4px 4px;padding:12px">
+
+ <!-- 名前・種族・職業 -->
+ <div style="text-align:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--earth)">
+ <div id="sp-name" style="font-size:calc(var(--font-lg) + 2px);color:#f0ece0;margin-bottom:2px"></div>
+ <div id="sp-epithet" style="font-size:calc(var(--font-sm) - 1px);color:var(--white);margin-bottom:4px"></div>
+ <div id="sp-subtitle" style="font-size:calc(var(--font-sm) - 2px);color:#c8b8a0"></div>
+ </div>
+
+ <!-- 年齢・誕生日（寿命情報は非表示） -->
+ <div style="margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--earth)">
+ <div style="display:flex;justify-content:space-between">
+ <span style="font-size:calc(var(--font-sm) + 1px);color:#ece8e0" id="sp-age"></span>
+ <span style="font-size:var(--font-sm);color:#c8b8a0" id="sp-birthday"></span>
+ </div>
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-top:3px" id="sp-size"></div>
+ <div id="sp-lifespan-lbl" style="display:none"></div>
+ <div id="sp-life-bar" style="display:none"></div>
+ </div>
+
+ <!-- 能力値 -->
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── 能力値 ──</div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px" id="sp-attrs"></div>
+
+ <!-- 戦闘値 -->
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── 戦闘値 ──</div>
+ <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:10px" id="sp-combat"></div>
+
+ <!-- 所持金・経験値・レベル -->
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── 冒険 ──</div>
+ <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;margin-bottom:10px" id="sp-adv"></div>
+
+ <!-- 装備中アイテム -->
+ <div id="sp-worn-items"></div>
+
+ <!-- 性格 -->
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px;margin-top:10px">── 性格 ──</div>
+ <div id="sp-alignment" style="margin-bottom:10px"></div>
+
+ <!-- 背景 -->
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── 背景 ──</div>
+ <div id="sp-background"></div>
+ <div id="sp-languages"></div>
+
+ <!-- 引退ボタン -->
+ <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--shadow)">
+ <button onclick="confirmRetire()" style="width:100%;font-size:calc(var(--font-sm) - 2px);padding:10px;background:#0a0a00;border:1px solid #484848;color:#e0d8c8;font-family:system-ui,sans-serif;cursor:pointer;border-radius:3px"> 冒険者を引退する</button>
+ </div>
+ </div>
+
+ <!-- 装備タブ -->
+ <div id="stpanel-equip" style="display:none;background:var(--ink);border:2px solid var(--border);border-radius:0 4px 4px 4px;padding:12px">
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── 武器 ──</div>
+ <div id="sp-weapons" style="margin-bottom:10px"></div>
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── 防具・盾 ──</div>
+ <div id="sp-armor" style="margin-bottom:10px"></div>
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── 所持品 ──</div>
+ <div id="sp-equip" style="margin-bottom:10px"></div>
+ <div id="sp-equip-money" style="margin-bottom:10px"></div>
+ <div id="sp-jewels-wrap">
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── 宝飾品 ──</div>
+ <div id="sp-jewels" style="margin-bottom:10px"></div>
+ </div>
+ <div id="sp-specials-wrap">
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── 特産品 ──</div>
+ <div id="sp-specials" style="margin-bottom:10px"></div>
+ </div>
+ <div id="sp-spells-wrap" style="display:none">
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── 呪文 ──</div>
+ <div id="sp-spells"></div>
+ </div>
+ </div>
+
+ <!-- 記録タブ -->
+ <!-- パーティタブ -->
+ <div id="stpanel-party" style="display:none;background:var(--ink);border:2px solid var(--border);border-radius:0 4px 4px 4px;padding:12px">
+ <div id="sp-party-content"></div>
+ </div>
+
+ <div id="stpanel-log" style="display:none;background:var(--ink);border:2px solid var(--border);border-radius:0 4px 4px 4px;padding:12px">
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── 現在地 ──</div>
+ <div id="sp-location" style="margin-bottom:10px"></div>
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── ゲーム内日付 ──</div>
+ <div id="sp-date" style="margin-bottom:10px"></div>
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── 受注中の依頼 ──</div>
+ <div id="sp-quests" style="margin-bottom:10px"></div>
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── 人々の評価 ──</div>
+ <div id="sp-region-eval" style="margin-bottom:10px"></div>
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── 種族特性 ──</div>
+ <div id="sp-race-info" style="margin-bottom:10px"></div>
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:6px">── ライフイベント ──</div>
+ <button onclick="toggleLifeNarrative()" id="life-narrative-btn" style="width:100%;margin-bottom:8px;padding:8px;background:#0a0800;border:1px solid #484848;border-radius:3px;color:#f0ece0;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 1px);cursor:pointer"> 人生を振り返る</button>
+ <div id="sp-life-narrative" style="display:none;margin-bottom:12px;padding:10px;background:#07060e;border:1px solid #585858;border-radius:4px;font-size:calc(var(--font-sm) - 1px);color:var(--white);line-height:2"></div>
+ <div id="sp-life-events"></div>
+ </div>
+
+ <button class="cg-btn rand" style="margin-top:10px;font-size:calc(var(--font-sm) - 1px);padding:12px;width:100%" onclick="closeInventory()"> 閉じる</button>
+ </div>
+ </div>
+
+ <!-- モバイル用の要素（デスクトップではCSSで非表示） -->
+ <div id="timebar" style="display:none">-</div>
+ <div id="stats-bar">
+ <div class="stat-cell" id="sc-st"><span class="sl">強さ</span><span class="sv" id="d-st">-</span></div>
+ <div class="stat-cell" id="sc-con"><span class="sl">体力</span><span class="sv" id="d-con">-</span></div>
+ <div class="stat-cell" hidden><span class="sl">運</span><span class="sv" id="d-lk">-</span></div>
+ <div class="stat-cell" hidden><span class="sl">器用さ</span><span class="sv" id="d-dex">-</span></div>
+ <div class="stat-cell" hidden><span class="sl">戦闘力修正</span><span class="sv" id="d-adds">-</span></div>
+ <div class="stat-cell"><span class="sl">防護値</span><span class="sv" id="d-armor">-</span></div>
+ <div class="stat-cell" id="sc-wt"><span class="sl">重量</span><span class="sv" id="d-wt">-</span></div>
+ <div class="stat-cell"><span class="sl">所持金</span><span class="sv" id="d-gp" style="font-size:calc(var(--font-sm) - 3px)">-</span></div>
+ <div class="stat-cell"><span class="sl">LV</span><span class="sv" id="d-lv">1</span></div>
+ <div class="stat-cell" id="sc-food"><span class="sl">食料</span><span class="sv" id="d-food">-</span></div>
+ <div class="stat-cell" id="sc-ap" style="cursor:pointer" onclick="showInventory()"><span class="sl">経験値</span><span class="sv" id="d-ap">0</span></div>
+ </div>
+ <div id="scene-wrap"><canvas id="sc" width="480" height="78"></canvas></div>
+
+ </div><!-- /left-pane -->
+
+ <!-- ══ 右ペイン（デスクトップ: テキスト＋選択肢列）══ -->
+ <div id="right-pane">
+ <!-- 移動中シーン画像 -->
+ <div id="travel-img-area" style="display:none">
+  <img id="travel-img" src="" alt="" draggable="false">
+
+ </div>
+ <!-- ダンジョンシーン画像 -->
+ <div id="dungeon-img-area" style="display:none">
+  <img id="dungeon-img" src="" alt="" draggable="false">
+  <div id="dungeon-img-label"></div>
+ </div>
+ <div id="scroll-area">
+ <!-- 移動中プログレスバー（story.innerHTMLと独立） -->
+ <div id="travel-progress-wrap" style="display:none;padding:8px 12px 4px;background:var(--info-bg);border-bottom:1px solid var(--ink);">
+  <div id="travel-progress-label" style="font-size:calc(var(--font-sm) - 2px);color:#e0d8c8;margin-bottom:4px"></div>
+  <div style="position:relative;height:8px;background:var(--ink);border-radius:4px;overflow:hidden">
+   <div id="travel-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--white2),var(--nature2));border-radius:4px;transition:width 0.6s ease"></div>
+   <div id="travel-progress-dot" style="position:absolute;top:50%;width:10px;height:10px;background:var(--nature2);border-radius:50%;transform:translate(-50%,-50%);left:0%;transition:left 0.6s ease;box-shadow:0 0 6px var(--nature2)"></div>
+  </div>
+  <button id="wild-enter-btn" onclick="wildOpenConfirm()" style="display:none;margin-top:8px;width:100%;padding:9px 10px;background:#140e08;border:1px solid #686048;border-radius:4px;color:#e8e0d0;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 1px);cursor:pointer">荒野へ足を踏み入れる</button>
+  <div id="travel-latest" style="display:none"></div>
+ </div>
+ <div id="text-win">
+ <div class="node-id" id="node-label"></div>
+ <!-- 酒場会話パネル -->
+ <div id="patron-panel" class="hidden" style="margin:0 0 8px;flex-shrink:0">
+ <div style="background:#130e08;border:2px solid #a08848;border-radius:4px;padding:14px">
+  <div id="patron-panel-content"></div>
+  <button id="patron-panel-close" onclick="closePatronPanel()"
+   style="display:none;width:100%;margin-top:12px;font-size:calc(var(--font-sm) - 2px);padding:10px;background:var(--panel);border:1px solid #554433;color:#e0d0c0;font-family:system-ui,sans-serif;cursor:pointer;border-radius:3px">
+    閉じる
+  </button>
+ </div>
+ </div>
+ <!-- DICE -->
+ <div id="dice-area" class="hidden">
+ <h3> 能力値テスト</h3>
+ <div id="dd"></div>
+ <div class="dr-result" id="dres">──  ──</div>
+ <button class="roll-btn" id="rl-btn" onclick="doRoll()">▶ ROLL THE DICE!</button>
+ <div id="dice-manual-area" class="hidden" style="margin-top:4px">
+  <div id="dice-manual-hint" style="color:#c8b8a0;font-size:calc(var(--font-sm) - 1px);margin-bottom:6px;text-align:center">2D6の出目を入力してください</div>
+  <div style="display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:8px">
+   <input type="number" id="dice-manual-1" min="1" max="6" placeholder="?" style="width:56px;text-align:center;background:var(--ink);border:1px solid #484848;color:#f0ece0;font-size:var(--font-base);padding:6px;border-radius:3px">
+   <input type="number" id="dice-manual-2" min="1" max="6" placeholder="?" style="width:56px;text-align:center;background:var(--ink);border:1px solid #484848;color:#f0ece0;font-size:var(--font-base);padding:6px;border-radius:3px">
+  </div>
+  <button class="roll-btn" id="dice-manual-confirm" onclick="_confirmManualDice()">▶ この出目で確定</button>
+ </div>
+ </div>
+ <div id="story"></div>
+ </div>
+
+ <!-- COMBAT -->
+ <div id="cbt-area" class="hidden">
+ <h3> COMBAT!</h3>
+ <!-- ステータス固定エリア -->
+ <div id="cbt-status" style="display:flex;gap:6px;margin-bottom:6px">
+  <!-- 味方エリア -->
+  <div id="cbt-ally" style="flex:1;background:var(--ink);border:1px solid #484848;border-radius:3px;padding:6px;min-width:0">
+   <div style="font-size:calc(var(--font-sm) - 2px);color:var(--white);margin-bottom:4px"> 味方</div>
+   <div class="hp-lbl" id="p-lbl" style="color:#e0d8c8">YOU: 体力 -/-</div>
+   <div class="hp-bar-wrap"><div class="hp-bar-fill" id="p-bar" style="width:100%;background:linear-gradient(90deg,var(--white2),var(--white))"></div></div>
+   <div id="party-combat-ui"></div>
+  </div>
+  <!-- 敵エリア -->
+  <div id="cbt-enemy" style="flex:1;background:#180808;border:1px solid #6a2020;border-radius:3px;padding:6px;min-width:0">
+   <div style="font-size:calc(var(--font-sm) - 2px);color:var(--white);margin-bottom:4px"> 敵</div>
+   <div id="enemies-ui"></div>
+  </div>
+ </div>
+ <!-- ログ（スクロール） -->
+ <div id="cbt-log-wrap">
+  <div id="cbt-log-header"> 戦闘ログ</div>
+  <div class="cbt-log" id="clog"></div>
+ </div>
+ <!-- 呪文パネル（選択肢内で使用） -->
+ <div id="magic-area" class="hidden" style="display:none">
+  <div id="spell-info"></div>
+  <div class="spell-list" id="spell-list"></div>
+  <div class="magic-result" id="magic-result"></div>
+ </div>
+ <!-- 選択肢パネル（ログ下部に固定） -->
+ <div id="npc-action-panel" style="display:none;flex-shrink:0;margin-top:6px;padding:8px;background:var(--panel);border:1px solid var(--bark);border-radius:3px;max-height:55vh;overflow-y:auto">
+ <div id="npc-action-title" style="font-size:calc(var(--font-sm) - 2px);color:#f0ece0;margin-bottom:6px"></div>
+ <div id="npc-action-btns" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+ </div>
+ <div id="cbt-ok-area" style="display:none;flex-shrink:0;margin-top:6px"></div>
+ </div>
+
+ 
+
+
+<!-- SPELL MODAL -->
+ <div id="spell-modal">
+  <div id="spell-modal-title"> 呪文を選択</div>
+  <div id="spell-modal-ctx"></div>
+  <div id="spell-modal-list"></div>
+  <button id="spell-modal-close" onclick="closeSpellModal()"> 閉じる</button>
+ </div>
+
+ <!-- STATUS OVERLAY（モバイル時にここへ戻る） -->
+ <div id="inv-panel-mobile-anchor"></div>
+
+ <!-- IN-GAME SHOP OVERLAY -->
+ <div id="ingame-shop" class="hidden" style="margin:8px 8px 0;flex-shrink:0">
+ <div style="background:var(--ink);border:2px solid var(--border);border-radius:4px;padding:12px">
+ <div style="font-size:var(--font-base);color:#f0ece0;margin-bottom:6px" id="igs-title"> 装備屋</div>
+ <div style="font-size:var(--font-sm);color:#f0ece0;margin-bottom:8px">
+ 所持金: <span id="igs-gp">-</span>　
+ 重量: <span id="igs-wt">0</span>/<span id="igs-maxwt">-</span>
+ </div>
+ <!-- タブ -->
+ <div id="igs-tabs" style="display:flex;gap:4px;margin-bottom:8px;align-items:center">
+ <button class="igs-tab active" data-tab="weapon" onclick="igsSetTab('weapon')" style="flex:1;font-size:calc(var(--font-sm) - 2px);padding:6px 2px;background:#2a1a08;border:1px solid var(--leather);color:#f0ece0;border-radius:3px;cursor:pointer"> 武器</button>
+ <button class="igs-tab" data-tab="armor" onclick="igsSetTab('armor')" style="flex:1;font-size:calc(var(--font-sm) - 2px);padding:6px 2px;background:var(--info-bg);border:1px solid var(--steel);color:#c8b8a0;border-radius:3px;cursor:pointer"> 防具</button>
+ <button class="igs-tab" data-tab="goods" onclick="igsSetTab('goods')" style="flex:1;font-size:calc(var(--font-sm) - 2px);padding:6px 2px;background:var(--info-bg);border:1px solid var(--steel);color:#c8b8a0;border-radius:3px;cursor:pointer"> 消耗品</button>
+ <button class="igs-tab" data-tab="specialty" onclick="igsSetTab('specialty')" style="flex:1;font-size:calc(var(--font-sm) - 2px);padding:6px 2px;background:var(--info-bg);border:1px solid var(--steel);color:#c8b8a0;border-radius:3px;cursor:pointer"> 特産品</button>
+ <button class="igs-tab" data-tab="exchange" onclick="igsSetTab('exchange')" style="flex:1;font-size:calc(var(--font-sm) - 2px);padding:6px 2px;background:var(--info-bg);border:1px solid var(--steel);color:#c8b8a0;border-radius:3px;cursor:pointer"> 両替</button>
+ <button class="igs-tab" data-tab="jewel" onclick="igsSetTab('jewel')" style="flex:1;font-size:calc(var(--font-sm) - 2px);padding:6px 2px;background:var(--info-bg);border:1px solid var(--steel);color:#c8b8a0;border-radius:3px;cursor:pointer"> 宝飾</button>
+ <button class="igs-tab" data-tab="sell" onclick="igsSetTab('sell')" style="flex:1;font-size:calc(var(--font-sm) - 2px);padding:6px 2px;background:var(--info-bg);border:1px solid var(--steel);color:#c8b8a0;border-radius:3px;cursor:pointer"> 売却</button>
+ <button class="igs-tab" data-tab="forge" onclick="igsSetTab('forge')" style="flex:1;font-size:calc(var(--font-sm) - 2px);padding:6px 2px;background:var(--info-bg);border:1px solid var(--steel);color:#c8b8a0;border-radius:3px;cursor:pointer"> 鍛錬</button>
+ <button onclick="closeIngameShop()" style="flex-shrink:0;background:#0a0a0a;border:1px solid #554433;color:#e8e0d0;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 1px);padding:6px 10px;cursor:pointer;border-radius:3px" title="閉じる">✕</button>
+ </div>
+ <div id="igs-list" style="max-height:380px;overflow-y:auto"></div>
+ <button class="cg-btn rand" style="margin-top:10px;font-size:calc(var(--font-sm) - 1px);padding:12px;width:100%" onclick="closeIngameShop()"> 閉じる</button>
+ </div>
+ </div>
+
+ <!-- LEVEL UP PANEL -->
+ <div id="levelup-panel" class="hidden" style="margin:8px 8px 0;flex-shrink:0">
+ <div style="background:var(--panel);border:2px solid var(--leather);border-radius:4px;padding:14px">
+ <div style="font-size:calc(var(--font-base) + 1px);color:#f0ece0;margin-bottom:4px;text-align:center">⬆ LEVEL UP!</div>
+ <div id="lu-title" style="font-size:var(--font-sm);color:#f0ece0;text-align:center;margin-bottom:12px"></div>
+ <div style="font-size:calc(var(--font-sm) - 1px);color:#c8b8a0;margin-bottom:10px;text-align:center">能力値を1つ上昇させてください</div>
+ <div id="lu-options" style="display:flex;flex-direction:column;gap:6px"></div>
+ </div>
+ </div>
+ </div><!-- /scroll-area -->
+ <!-- 選択肢エリア（デスクトップでは底部固定） -->
+ <div id="choices"></div>
+ </div><!-- /right-pane -->
+</div><!-- /game -->
+
+
+</div>
+
+
+<script src="js/01-core.js"></script>
+<script src="js/02-character.js"></script>
+<script src="js/03-events.js"></script>
+<script src="js/04-explore.js"></script>
+<script src="js/05-dungeon.js"></script>
+<script src="js/06-shop.js"></script>
+<script src="js/07-combat.js"></script>
+<script src="js/08-ui.js"></script>
+<script src="js/09-nodes.js"></script>
+
+<!-- DEBUG PANEL -->
+<div id="debug-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:9999;overflow-y:auto;-webkit-overflow-scrolling:touch">
+ <div style="max-width:420px;margin:0 auto;padding:12px">
+
+  <!-- ヘッダー -->
+  <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #553377;padding-bottom:8px;margin-bottom:12px">
+   <span style="color:#cc88ff;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 1px)"> DEBUG PANEL</span>
+   <button onclick="document.getElementById('debug-panel').style.display='none'" style="background:none;border:1px solid #664488;color:#cc88ff;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 2px);padding:4px 10px;cursor:pointer;border-radius:3px">X</button>
+  </div>
+
+  <!-- ステータス操作 -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin-bottom:6px;letter-spacing:1px">── ステータス操作 ──</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:14px">
+   <button onclick="dbg(()=>{gainGP(1000);updateHUD();showSaveToast('+1000GP')})" class="dbg-btn">+1000GP</button>
+   <button onclick="dbg(()=>{gainGP(10000);updateHUD();showSaveToast('+10000GP')})" class="dbg-btn">+10000GP</button>
+   <button onclick="dbg(()=>{gainAP(5000);updateHUD();showSaveToast('+5000AP')})" class="dbg-btn">+5000AP</button>
+   <button onclick="dbg(()=>{PC.con=PC.maxCon;(PC.party||[]).forEach(n=>{if(n.con>0)n.con=n.maxCon||n.con});updateHUD();showSaveToast('HP全回復')})" class="dbg-btn">HP全回復</button>
+   <button onclick="dbg(()=>{PC._torchStock=(PC._torchStock||0)+10;updateHUD();showSaveToast('松明+10')})" class="dbg-btn">松明+10</button>
+   <button onclick="dbg(()=>{PC._torchTurns=0;updateHUD();showSaveToast('松明を消灯（残turnsを0に）')})" class="dbg-btn" style="border-color:#663322;color:#cc6644">松明を消す</button>
+   <button onclick="dbg(()=>{PC.food=(PC.food||0)+50;updateHUD();showSaveToast('食料+50')})" class="dbg-btn">食料+50</button>
+   <button onclick="dbg(()=>{PC.iq=Math.max(PC.iq,16);PC.dex=Math.max(PC.dex,11);updateHUD();showSaveToast('IQ16/DEX11以上に調整（Lv4呪文用）')})" class="dbg-btn" style="border-color:#446688;color:#88aacc">Lv4呪文要件</button>
+  </div>
+
+  <!-- 世界的大地震システム -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 世界的大地震 ──</div>
+  <div style="display:grid;grid-template-columns:1fr;gap:5px;margin-bottom:14px">
+   <button onclick="dbg(()=>{dbgForceWorldEarthquake();})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">大地震を即座に発生させる</button>
+  </div>
+
+  <!-- 「地中神殿の廃墟」（ニフルヴィク新ダンジョン）テスト -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 地中神殿の廃墟（ニフルヴィク新ダンジョン）テスト ──</div>
+  <div style="display:grid;grid-template-columns:1fr;gap:5px;margin-bottom:14px">
+   <button onclick="dbg(()=>{drawScene('dungeon');go('NIFLAIR_FRONT');})" class="dbg-btn" style="border-color:#448866;color:#88eebb">① 入口前へ直接移動</button>
+   <button onclick="dbg(()=>{initTorch();drawScene('dungeon');go('NIFLAIR_ENTRANCE');})" class="dbg-btn" style="border-color:#448866;color:#88eebb">② 入口（地下）へ直接移動</button>
+   <button onclick="dbg(()=>{PC._niflairR1TrapDone=false;initTorch();drawScene('dungeon');go('NIFLAIR_ROOM1');})" class="dbg-btn" style="border-color:#448866;color:#88eebb">③ 部屋1（東の扉の罠・未解決）へ移動</button>
+   <button onclick="dbg(()=>{initNiflairDungeon();const l=PC._niflairDungeon;const s=l.themeId?LAIR_THEMES[l.themeId].name:'（無人）';const cleared=Object.keys(NIFLAIR_ROOM_AREAS).filter(id=>l.nodeState[id]?.defeated).length;showSaveToast('テーマ:'+s+' / 討伐済み部屋:'+cleared+'/'+Object.keys(NIFLAIR_ROOM_AREAS).length+' / 次回湧き予定日:'+l.nextRespawnDay+'（現在:'+GAME_TIME.totalDays+'日目）')})" class="dbg-btn" style="border-color:#446688;color:#88aacc">巣窟の状態を確認</button>
+   <button onclick="dbg(()=>{initNiflairDungeon();const ids=Object.keys(LAIR_THEMES);const pick=prompt('テーマID('+ids.join('/')+')','buriedTemple');if(!ids.includes(pick)){showSaveToast('不正なテーマID');return;}const l=PC._niflairDungeon;l.themeId=pick;l.spawnDay=GAME_TIME.totalDays;l.clearedDay=null;Object.keys(NIFLAIR_ROOM_AREAS).forEach(id=>{l.nodeState[id]={defeated:false,monsters:null};});showSaveToast('テーマを強制設定：'+LAIR_THEMES[pick].name)})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">テーマを強制指定</button>
+   <button onclick="dbg(()=>{initNiflairDungeon();const l=PC._niflairDungeon;Object.keys(NIFLAIR_ROOM_AREAS).forEach(id=>{l.nodeState[id].defeated=true;});l.lastThemeId=l.themeId;l.clearedDay=GAME_TIME.totalDays;l.nextRespawnDay=GAME_TIME.totalDays+180;l.themeId=null;showSaveToast('全部屋を討伐済みにして一掃成立（次回湧き:'+l.nextRespawnDay+'日目）')})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">全部屋を討伐済みにして一掃</button>
+  </div>
+
+  <!-- 「墓地の唸り声」専用イベント -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 墓地の唸り声（専用イベント）テスト ──</div>
+  <div style="display:grid;grid-template-columns:1fr;gap:5px;margin-bottom:14px">
+   <button onclick="dbg(()=>{dbgTestGraveyardMoan('choices');})" class="dbg-btn" style="border-color:#664488;color:#cc99ee">① 3択（CHR/IQ/LK）から開始</button>
+   <button onclick="dbg(()=>{dbgTestGraveyardMoan('scene');})" class="dbg-btn" style="border-color:#664488;color:#cc99ee">② 深夜の墓地シーンから開始</button>
+   <button onclick="dbg(()=>{dbgTestGraveyardMoan('tomb');})" class="dbg-btn" style="border-color:#664488;color:#cc99ee">③ 塚の中の描写ノードから開始</button>
+   <button onclick="dbg(()=>{dbgTestGraveyardMoan('combat');})" class="dbg-btn" style="border-color:#664488;color:#cc99ee">④ 塚の中の戦闘だけ直接開始</button>
+  </div>
+
+  <!-- 「商家の密輸」専用イベント -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 商家の密輸（専用イベント）テスト ──</div>
+  <div style="display:grid;grid-template-columns:1fr;gap:5px;margin-bottom:14px">
+   <button onclick="dbg(()=>{dbgTestSmuggling('choices');})" class="dbg-btn" style="border-color:#448866;color:#88ddaa">① 3択（CHR/IQ/LK）から開始</button>
+   <button onclick="dbg(()=>{dbgTestSmuggling('merchant');})" class="dbg-btn" style="border-color:#448866;color:#88ddaa">② 商家ノードから開始</button>
+   <button onclick="dbg(()=>{dbgTestSmuggling('threaten');})" class="dbg-btn" style="border-color:#448866;color:#88ddaa">③ 商人を脅す（CHR Lv2）だけ直接開始</button>
+   <button onclick="dbg(()=>{dbgTestSmuggling('buy');})" class="dbg-btn" style="border-color:#448866;color:#88ddaa">④ 密輸品を買うだけ直接開始</button>
+  </div>
+
+  <!-- 「先代の英雄のお宝」専用イベント -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 先代の英雄のお宝（専用イベント）テスト ──</div>
+  <div style="display:grid;grid-template-columns:1fr;gap:5px;margin-bottom:14px">
+   <button onclick="dbg(()=>{dbgTestHeroTreasure('choices');})" class="dbg-btn" style="border-color:#886644;color:#eeaa77">① 3択（CHR/IQ/LK）から開始</button>
+   <button onclick="dbg(()=>{dbgTestHeroTreasure('scene');})" class="dbg-btn" style="border-color:#886644;color:#eeaa77">② 塚を発見するシーンから開始</button>
+   <button onclick="dbg(()=>{dbgTestHeroTreasure('tomb');})" class="dbg-btn" style="border-color:#886644;color:#eeaa77">③ 塚の中の描写ノードから開始</button>
+   <button onclick="dbg(()=>{dbgTestHeroTreasure('combat');})" class="dbg-btn" style="border-color:#886644;color:#eeaa77">④ 塚の中の戦闘だけ直接開始</button>
+  </div>
+
+  <!-- 「町外れの奇妙な光」専用イベント -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 町外れの奇妙な光（専用イベント）テスト ──</div>
+  <div style="display:grid;grid-template-columns:1fr;gap:5px;margin-bottom:14px">
+   <button onclick="dbg(()=>{dbgTestStrangeLight('choices');})" class="dbg-btn" style="border-color:#446688;color:#77aaee">① 3択（CHR/IQ/LK）から開始</button>
+   <button onclick="dbg(()=>{dbgTestStrangeLight('scene');})" class="dbg-btn" style="border-color:#446688;color:#77aaee">② 廃屋を発見するシーンから開始</button>
+   <button onclick="dbg(()=>{dbgTestStrangeLight('house');})" class="dbg-btn" style="border-color:#446688;color:#77aaee">③ 廃屋の中の描写ノードから開始</button>
+   <button onclick="dbg(()=>{dbgTestStrangeLight('combat');})" class="dbg-btn" style="border-color:#446688;color:#77aaee">④ 戦闘だけ直接開始</button>
+  </div>
+
+  <!-- 村・裏路地システム（実験導入） -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 村・裏路地システム（NEW） ──</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0a0f00;border:1px solid #336633;border-radius:4px;padding:8px;margin-bottom:14px">
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';enterVillageBackAlley('verda');})" class="dbg-btn">ヴェルダ裏路地に強制入場</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';enterVillageBackAlley('rimholm');})" class="dbg-btn">リムホルム裏路地に強制入場</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';enterVillageBackAlley('saroon');})" class="dbg-btn">サルーン裏路地に強制入場</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';enterVillageBackAlley('duna');})" class="dbg-btn">デュナ裏路地に強制入場</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';enterVillageBackAlley('ashveil');})" class="dbg-btn">アッシュヴェイル裏路地に強制入場</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';enterVillageBackAlley('nifurvik');})" class="dbg-btn">ニフルヴィク裏路地に強制入場</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';enterVillageBackAlley('iskald');})" class="dbg-btn">イスカルド裏路地に強制入場</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';smallTownHub('stonehiem');})" class="dbg-btn" style="border-color:#446688;color:#88aacc">ストーンヘイム中央広場へ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';smallTownHub('oasis_fort');})" class="dbg-btn" style="border-color:#446688;color:#88aacc">オアシス砦中央広場へ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';smallTownHub('marakai');})" class="dbg-btn" style="border-color:#446688;color:#88aacc">マラカイ中央広場へ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';smallTownHub('frostpeak');})" class="dbg-btn" style="border-color:#446688;color:#88aacc">フロストピーク中央広場へ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';smallTownHub('elsia');})" class="dbg-btn" style="border-color:#446688;color:#88aacc">エルマリア中央広場へ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';smallTownHub('port_argon');})" class="dbg-btn" style="border-color:#446688;color:#88aacc">ポート・アルゴン中央広場へ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';smallTownHub('al_rashid');})" class="dbg-btn" style="border-color:#446688;color:#88aacc">アル・ラシード中央広場へ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';smallTownHub('yeldun');})" class="dbg-btn" style="border-color:#446688;color:#88aacc">イェルドゥン中央広場へ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';smallTownHub('valdheim');})" class="dbg-btn" style="border-color:#446688;color:#88aacc">ヴァルドヘイム中央広場へ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';smallTownHub('khazan');})" class="dbg-btn" style="border-color:#446688;color:#88aacc">カザーヌ中央広場へ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceVillageIncident('khazan','oldtown','khazan_riot');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">暴動イベント強制表示</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceVillageIncident('khazan','oldtown','khazan_rebellion');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">大規模反乱イベント強制表示</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';enterVillageBackAlley('stonehiem','admin');})" class="dbg-btn" style="border-color:#446688;color:#88aacc">ストーンヘイム行政地区に強制入場</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';enterVillageBackAlley('stonehiem','oldtown');})" class="dbg-btn" style="border-color:#446688;color:#88aacc">ストーンヘイム旧市街地区に強制入場</button>
+   <button onclick="dbg(()=>{GAME_TIME.hour=(GAME_TIME.hour??6)+2;if(GAME_TIME.hour>=24){GAME_TIME.hour-=24;GAME_TIME.totalDays++;}updateHUD();showSaveToast('時刻+2h（現在:'+Math.floor(GAME_TIME.hour??6)+'時 '+villagePhase(getGameHour()).label+'）')})" class="dbg-btn">時刻+2時間</button>
+   <button onclick="dbg(()=>{GAME_TIME.hour=19;updateHUD();showSaveToast('時刻を19時（夜）に設定')})" class="dbg-btn" style="border-color:#663322;color:#cc6644">時刻を夜に設定</button>
+   <button onclick="dbg(()=>{GAME_TIME.hour=8;updateHUD();showSaveToast('時刻を8時（朝）に設定')})" class="dbg-btn">時刻を朝に設定</button>
+   <button onclick="dbg(()=>{_ensureTrustObject();PC.trust.stonehiem=80;updateHUD();document.getElementById('debug-panel').style.display='none';enterVillageBackAlley('stonehiem','admin');showSaveToast('信頼度80に設定・行政地区へ入場（英雄イベント検証用）')})" class="dbg-btn" style="border-color:#886644;color:#ccaa66">英雄たかりイベント検証（行政地区）</button>
+   <button onclick="dbg(()=>{_ensureTrustObject();PC.trust.stonehiem=80;updateHUD();document.getElementById('debug-panel').style.display='none';enterVillageBackAlley('stonehiem','oldtown');showSaveToast('信頼度80に設定・旧市街地区へ入場（英雄イベント検証用）')})" class="dbg-btn" style="border-color:#886644;color:#ccaa66">英雄たかりイベント検証（旧市街）</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceVillageIncident('stonehiem','admin','admin_bribe_gatekeeper');})" class="dbg-btn" style="border-color:#664488;color:#cc99ff">門衛イベント強制表示</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceVillageIncident('stonehiem','admin','admin_snitch_informant');})" class="dbg-btn" style="border-color:#664488;color:#cc99ff">密告屋イベント強制表示</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceVillageIncident('stonehiem','admin','admin_weapon_tax_collector');})" class="dbg-btn" style="border-color:#664488;color:#cc99ff">徴収員イベント強制表示</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceVillageIncident('stonehiem','admin','admin_radical_orator');})" class="dbg-btn" style="border-color:#664488;color:#cc99ff">街頭弁士イベント強制表示</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceVillageIncident('stonehiem','admin','admin_cleaning_volunteer');})" class="dbg-btn" style="border-color:#664488;color:#cc99ff">清掃員イベント強制表示</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceVillageIncident('stonehiem','admin','admin_delivery_request_oldtown');})" class="dbg-btn" style="border-color:#664488;color:#cc99ff">宅配依頼(行政→旧市街)強制表示</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceVillageIncident('stonehiem','oldtown','oldtown_delivery_request_admin');})" class="dbg-btn" style="border-color:#664488;color:#cc99ff">宅配依頼(旧市街→行政)強制表示</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceVillageIncident('stonehiem','oldtown','oldtown_toll_thug');})" class="dbg-btn" style="border-color:#664488;color:#cc99ff">通行料チンピラ強制表示</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceVillageIncident('stonehiem','oldtown','oldtown_cult_soup');})" class="dbg-btn" style="border-color:#664488;color:#cc99ff">新興宗教スープ強制表示</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceLocalWanted('stonehiem','admin');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">ローカル手配犯強制遭遇（行政地区）</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceBountyHideout('stonehiem','oldtown');})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">賞金首アジト強制遭遇（要：受注中の賞金首依頼）</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceEliteHunt('stonehiem');})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">NPC型精鋭討伐依頼を強制発行して出発</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceTownMiniQuest('stonehiem','oldtown');})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">町完結ミニ依頼を強制受注して解決ノードへ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';PC._heroTowns=PC._heroTowns||{};PC._heroTowns['khazan']=true;PC.town='khazan';showRegionalPalace('khazan');})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">カザーヌで英雄扱いにして庁舎へ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';PC._fiefCharters=PC._fiefCharters||[];PC._fiefCharters.push({fiefId:fiefIdForAnchor('khazan'),regionKey:'khazan_region',townId:'khazan',anchorTownId:'khazan',anchorDays:20,obtainedDay:GAME_TIME.totalDays});PC.town='khazan';enterFiefClearing('khazan');})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">封地免状を強制取得して砦跡討伐へ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';if(!(PC.party||[]).length){showSaveToast('パーティにNPCがいません');return;}const npc=PC.party[0];npc.level=5;const cand=checkPartyDepartureCandidate();if(!cand){showSaveToast('離脱候補が見つかりません（条件未達）');return;}drawScene('travel');showSaveToast('離脱イベント強制発生：'+cand.npc.name+'／理由:'+cand.reason.type);startPartyDepartureEvent({daysDone:1,interval:1000});})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">仲間の離脱イベント強制発生（先頭NPCをLv5に）</button>
+   <button onclick="dbg(()=>dbgForceIndependenceDeparture())" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">仲間の独立志向の相談を強制発生（適当なNPCをLv5に）</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';if(!PC.background||PC.background.motiveTag!=='revenge'){showSaveToast('PCの動機がrevengeタグではありません');return;}if(PC.level<3)PC.level=3;PC.background.revengeResolved=false;drawScene('travel');startRevengeFinaleEvent({daysDone:1,interval:1000});})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">revenge決着イベント強制発生（PCをLv3以上に）</button>
+   <button onclick="dbg(()=>{const lvl=parseInt(prompt('敵のレベルを入力','3'),10)||3;const count=Math.max(1,parseInt(prompt('敵の人数を入力','2'),10)||2);document.getElementById('debug-panel').style.display='none';const enemies=Array.from({length:count},()=>generateNPC(lvl));drawScene('combat');startCombatNPC({enemies,canFlee:true,win:'__noop__',lose:'DEAD',onWin:()=>{document.getElementById('cbt-area').classList.add('hidden');document.getElementById('scroll-area').classList.remove('in-combat');document.getElementById('text-win').style.display='';cbtState=null;showSaveToast('デバッグ戦闘：勝利');}});})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">NPC型戦闘テスト（レベル・人数を指定）</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';if(!PC.background||PC.background.motiveTag!=='wealth'){showSaveToast('PCの動機がwealthタグではありません');return;}if(!PC.background.motiveIsDebt){showSaveToast('この動機は借金持ちではありません（isDebt:false）');return;}PC.gold=(PC.gold||0)+10000;PC.town=PC._startTown;updateHUD();goOtherActions(PC._startTown);showSaveToast('所持金+10000GP・出発した町のその他の行動を表示（借金を返すボタンを確認）');})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">wealth（借金）の返済条件を満たして出発地の「その他の行動」へ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';if(!PC.background||PC.background.motiveTag!=='family'){showSaveToast('PCの動機がfamilyタグではありません');return;}PC.town=PC._startTown;updateHUD();giveFamilyMoney(PC._startTown);})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">family：出発地で実家イベントを強制確認</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';const c=(PC._fiefCharters||[])[0];if(c){PC.properties[c.fiefId].population=850;_updateNobilityTitle();updateHUD();showSaveToast('先頭の領地の領民を850人に設定・称号を再計算：'+(PC._nobilityTitle||'なし'));}else{showSaveToast('先に領地を取得してください');}})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">先頭の領地の領民を850人にして称号チェック</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceVaineEncounter();})" class="dbg-btn" style="border-color:#443300;color:#d8c088">空虚な鎧ヴェインとの遭遇を強制発生</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgForceLocalWanted('stonehiem','oldtown');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">ローカル手配犯強制遭遇（旧市街）</button>
+   <button onclick="dbg(()=>{PC._localWantedBoards=null;showSaveToast('手配書をリセット（次回訪問時に再生成）')})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">手配書リセット</button>
+  </div>
+
+  <!-- 巣窟ダンジョン（テーマ付き半年周期システム） -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 巣窟ダンジョン（NEW） ──</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0a000f;border:1px solid #443366;border-radius:4px;padding:8px;margin-bottom:14px">
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';drawScene('dungeon');enterLairDungeon();})" class="dbg-btn">巣窟ダンジョンに強制入場</button>
+   <button onclick="dbg(()=>{initLairDungeon();const l=PC._lairDungeon;const s=l.themeId?LAIR_THEMES[l.themeId].name:'（無人）';const cleared=Object.keys(LAIR_ROOM_AREAS).filter(id=>l.nodeState[id]?.defeated).length;showSaveToast('テーマ:'+s+' / 討伐済み部屋:'+cleared+'/6 / 次回湧き予定日:'+l.nextRespawnDay+'（現在:'+GAME_TIME.totalDays+'日目）')})" class="dbg-btn" style="border-color:#446688;color:#88aacc">巣窟の状態を確認</button>
+   <button onclick="dbg(()=>{initLairDungeon();const ids=Object.keys(LAIR_THEMES);const pick=prompt('テーマID('+ids.join('/')+')','goblinNest');if(!ids.includes(pick)){showSaveToast('不正なテーマID');return;}const l=PC._lairDungeon;l.themeId=pick;l.spawnDay=GAME_TIME.totalDays;l.clearedDay=null;Object.keys(LAIR_ROOM_AREAS).forEach(id=>{l.nodeState[id]={defeated:false,monsters:null};});showSaveToast('テーマを強制設定：'+LAIR_THEMES[pick].name)})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">テーマを強制指定</button>
+   <button onclick="dbg(()=>{initLairDungeon();const l=PC._lairDungeon;Object.keys(LAIR_ROOM_AREAS).forEach(id=>{l.nodeState[id].defeated=true;});l.lastThemeId=l.themeId;l.clearedDay=GAME_TIME.totalDays;l.nextRespawnDay=GAME_TIME.totalDays+180;l.themeId=null;showSaveToast('全部屋を討伐済みにして一掃成立（次回湧き:'+l.nextRespawnDay+'日目）')})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">全部屋を討伐済みにして一掃</button>
+   <button onclick="dbg(()=>{initLairDungeon();PC._lairDungeon.nextRespawnDay=GAME_TIME.totalDays;showSaveToast('再湧き予定日を今日に設定（次回入場でテーマ抽選）')})" class="dbg-btn" style="border-color:#446688;color:#88aacc">再湧き予定日を今日に</button>
+  </div>
+
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 孤島の深淵：シナリオ（NEW） ──</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0a000f;border:1px solid #443366;border-radius:4px;padding:8px;margin-bottom:14px">
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';drawScene('dungeon');checkLair5Respawn();go('LAIR5_FRONT');})" class="dbg-btn">孤島の深淵に強制入場</button>
+   <button onclick="dbg(()=>{_dbgForceLair5Scenario('scn_missingSorcerer')})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">シナリオ1「行方知れずの呪術師」を強制発生</button>
+   <button onclick="dbg(()=>{_dbgForceLair5Scenario('scn_missingDuo')})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">シナリオ2「消えた魔法使いと戦士」を強制発生</button>
+   <button onclick="dbg(()=>{_dbgForceLair5Scenario('scn_rescue')})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">シナリオ3「さらわれた人々」を強制発生</button>
+   <button onclick="dbg(()=>{initLair5Dungeon();const l=PC._lair5Dungeon;const s=l.themeId?_lair5GetTheme(l.themeId).name:'（無人）';const names=l.scenarioNames||(l.scenarioSorcererName?[l.scenarioSorcererName]:[]);const cleared=Object.keys(LAIR5_ROOM_AREAS).filter(id=>l.nodeState[id]?.defeated).length;const rescued=(PC._lair5RescuedNames||[]);showSaveToast('テーマ:'+s+(names.length?'（'+names.join('・')+'）':'')+' / 討伐済み部屋:'+cleared+'/'+Object.keys(LAIR5_ROOM_AREAS).length+' / 次回湧き予定日:'+l.nextRespawnDay+'（現在:'+GAME_TIME.totalDays+'日目）'+(rescued.length?' / 帰還待ちの救助者:'+rescued.join('・'):''))})" class="dbg-btn" style="border-color:#446688;color:#88aacc">孤島の深淵の状態を確認</button>
+  </div>
+
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 古代の祈祷所（NEW） ──</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0a000f;border:1px solid #443366;border-radius:4px;padding:8px;margin-bottom:14px">
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';drawScene('dungeon');checkLair6Respawn();go('LAIR6_FRONT');})" class="dbg-btn">古代の祈祷所に強制入場</button>
+   <button onclick="dbg(()=>{initLair6Dungeon();const ids=Object.keys(LAIR_THEMES);const pick=prompt('テーマID('+ids.join('/')+')','buriedTemple');if(!ids.includes(pick)){showSaveToast('不正なテーマID');return;}const l=PC._lair6Dungeon;l.themeId=pick;l.spawnDay=GAME_TIME.totalDays;l.clearedDay=null;Object.keys(LAIR6_ROOM_AREAS).forEach(id=>{l.nodeState[id]={defeated:false,monsters:null};});showSaveToast('テーマを強制設定：'+LAIR_THEMES[pick].name)})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">テーマを強制指定</button>
+   <button onclick="dbg(()=>{initLair6Dungeon();const l=PC._lair6Dungeon;Object.keys(LAIR6_ROOM_AREAS).forEach(id=>{l.nodeState[id].defeated=true;});l.lastThemeId=l.themeId;l.clearedDay=GAME_TIME.totalDays;l.nextRespawnDay=GAME_TIME.totalDays+180;l.themeId=null;showSaveToast('全部屋を討伐済みにして一掃成立（次回湧き:'+l.nextRespawnDay+'日目）')})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">全部屋を討伐済みにして一掃</button>
+   <button onclick="dbg(()=>{initLair6Dungeon();const l=PC._lair6Dungeon;const s=l.themeId?_lairScenarioAwareTheme(l.themeId).name:'（無人）';const cleared=Object.keys(LAIR6_ROOM_AREAS).filter(id=>l.nodeState[id]?.defeated).length;const rescued=(PC._lair6RescuedNames||[]);showSaveToast('テーマ:'+s+' / 討伐済み部屋:'+cleared+'/'+Object.keys(LAIR6_ROOM_AREAS).length+' / 次回湧き予定日:'+l.nextRespawnDay+'（現在:'+GAME_TIME.totalDays+'日目）'+(rescued.length?' / 帰還待ちの救助者:'+rescued.join('・'):''))})" class="dbg-btn" style="border-color:#446688;color:#88aacc">古代の祈祷所の状態を確認</button>
+  </div>
+
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── ならず者の隠れ家（NEW） ──</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0a000f;border:1px solid #443366;border-radius:4px;padding:8px;margin-bottom:14px">
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';drawScene('dungeon');checkLair7Respawn();go('LAIR7_FRONT');})" class="dbg-btn">ならず者の隠れ家に強制入場</button>
+   <button onclick="dbg(()=>{initLair7Dungeon();const ids=Object.keys(LAIR_THEMES);const pick=prompt('テーマID('+ids.join('/')+')','banditGang');if(!ids.includes(pick)){showSaveToast('不正なテーマID');return;}const l=PC._lair7Dungeon;l.themeId=pick;l.spawnDay=GAME_TIME.totalDays;l.clearedDay=null;Object.keys(LAIR7_ROOM_AREAS).forEach(id=>{l.nodeState[id]={defeated:false,monsters:null};});showSaveToast('テーマを強制設定：'+LAIR_THEMES[pick].name)})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">テーマを強制指定</button>
+   <button onclick="dbg(()=>{initLair7Dungeon();const l=PC._lair7Dungeon;Object.keys(LAIR7_ROOM_AREAS).forEach(id=>{l.nodeState[id].defeated=true;});l.lastThemeId=l.themeId;l.clearedDay=GAME_TIME.totalDays;l.nextRespawnDay=GAME_TIME.totalDays+180;l.themeId=null;showSaveToast('全部屋を討伐済みにして一掃成立（次回湧き:'+l.nextRespawnDay+'日目）')})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">全部屋を討伐済みにして一掃</button>
+   <button onclick="dbg(()=>{initLair7Dungeon();const l=PC._lair7Dungeon;const s=l.themeId?_lairScenarioAwareTheme(l.themeId).name:'（無人）';const cleared=Object.keys(LAIR7_ROOM_AREAS).filter(id=>l.nodeState[id]?.defeated).length;const rescued=(PC._lair7RescuedNames||[]);showSaveToast('テーマ:'+s+' / 討伐済み部屋:'+cleared+'/'+Object.keys(LAIR7_ROOM_AREAS).length+' / 次回湧き予定日:'+l.nextRespawnDay+'（現在:'+GAME_TIME.totalDays+'日目）'+(rescued.length?' / 帰還待ちの救助者:'+rescued.join('・'):''))})" class="dbg-btn" style="border-color:#446688;color:#88aacc">ならず者の隠れ家の状態を確認</button>
+  </div>
+
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 丘を掘り抜いた遺跡（NEW・荒野のダンジョン） ──</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0a000f;border:1px solid #443366;border-radius:4px;padding:8px;margin-bottom:14px">
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';hruinEnter('N');})" class="dbg-btn">北寄りの入口（部屋J）に強制入場</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';hruinEnter('S');})" class="dbg-btn">南寄りの入口（柱廊1）に強制入場</button>
+   <button onclick="dbg(()=>{initHruinDungeon();const ids=Object.keys(LAIR_THEMES);const pick=prompt('テーマID('+ids.join('/')+')','banditGang');if(!ids.includes(pick)){showSaveToast('不正なテーマID');return;}const l=PC._hruinDungeon;l.themeId=pick;l.spawnDay=GAME_TIME.totalDays;l.clearedDay=null;Object.keys(HRUIN_ROOM_AREAS).forEach(id=>{l.nodeState[id]={defeated:false,monsters:null};});showSaveToast('テーマを強制設定：'+LAIR_THEMES[pick].name)})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">テーマを強制指定</button>
+   <button onclick="dbg(()=>{initHruinDungeon();const l=PC._hruinDungeon;Object.keys(HRUIN_ROOM_AREAS).forEach(id=>{l.nodeState[id].defeated=true;});l.lastThemeId=l.themeId;l.clearedDay=GAME_TIME.totalDays;l.nextRespawnDay=GAME_TIME.totalDays+180;l.themeId=null;showSaveToast('全部屋を討伐済みにして一掃成立（次回湧き:'+l.nextRespawnDay+'日目）')})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">全部屋を討伐済みにして一掃</button>
+   <button onclick="dbg(()=>{initHruinDungeon();const l=PC._hruinDungeon;const s=l.themeId?_lairScenarioAwareTheme(l.themeId).name:'（無人）';const cleared=Object.keys(HRUIN_ROOM_AREAS).filter(id=>l.nodeState[id]?.defeated).length;const rescued=(PC._hruinRescuedNames||[]);showSaveToast('テーマ:'+s+' / 討伐済み部屋:'+cleared+'/'+Object.keys(HRUIN_ROOM_AREAS).length+' / 次回湧き予定日:'+l.nextRespawnDay+'（現在:'+GAME_TIME.totalDays+'日目）'+(rescued.length?' / 帰還待ちの救助者:'+rescued.join('・'):''))})" class="dbg-btn" style="border-color:#446688;color:#88aacc">遺跡の状態を確認</button>
+  </div>
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 地下哨所（NEW） ──</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0a000f;border:1px solid #443366;border-radius:4px;padding:8px;margin-bottom:14px">
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';drawScene('dungeon');checkOutpostRespawn();go('OUTPOST_FRONT');})" class="dbg-btn">地下哨所に強制入場</button>
+   <button onclick="dbg(()=>{initOutpostDungeon();const ids=Object.keys(LAIR_THEMES);const pick=prompt('テーマID('+ids.join('/')+')','banditGang');if(!ids.includes(pick)){showSaveToast('不正なテーマID');return;}const l=PC._outpostDungeon;l.themeId=pick;l.spawnDay=GAME_TIME.totalDays;l.clearedDay=null;Object.keys(OUTPOST_ROOM_AREAS).forEach(id=>{l.nodeState[id]={defeated:false,monsters:null};});showSaveToast('テーマを強制設定：'+LAIR_THEMES[pick].name)})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">テーマを強制指定</button>
+   <button onclick="dbg(()=>{initOutpostDungeon();const l=PC._outpostDungeon;Object.keys(OUTPOST_ROOM_AREAS).forEach(id=>{l.nodeState[id].defeated=true;});l.lastThemeId=l.themeId;l.clearedDay=GAME_TIME.totalDays;l.nextRespawnDay=GAME_TIME.totalDays+180;l.themeId=null;showSaveToast('全部屋を討伐済みにして一掃成立（次回湧き:'+l.nextRespawnDay+'日目）')})" class="dbg-btn" style="border-color:#aa4444;color:#ff8888">全部屋を討伐済みにして一掃</button>
+   <button onclick="dbg(()=>{initOutpostDungeon();const l=PC._outpostDungeon;const s=l.themeId?_lairScenarioAwareTheme(l.themeId).name:'（無人）';const cleared=Object.keys(OUTPOST_ROOM_AREAS).filter(id=>l.nodeState[id]?.defeated).length;const rescued=(PC._outpostRescuedNames||[]);showSaveToast('テーマ:'+s+' / 討伐済み部屋:'+cleared+'/'+Object.keys(OUTPOST_ROOM_AREAS).length+' / 次回湧き予定日:'+l.nextRespawnDay+'（現在:'+GAME_TIME.totalDays+'日目）'+(rescued.length?' / 帰還待ちの救助者:'+rescued.join('・'):''))})" class="dbg-btn" style="border-color:#446688;color:#88aacc">地下哨所の状態を確認</button>
+  </div>
+
+  <!-- 四季・旅イベント強制発動（今回追加） -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 旅イベント強制発動（NEW） ──</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0a000f;border:1px solid #443366;border-radius:4px;padding:8px;margin-bottom:14px">
+   <button onclick="dbg(()=>{
+    if(!travelState){ showSaveToast('旅行中のみ使用できます'); return; }
+    document.getElementById('debug-panel').style.display='none';
+    const currentRegion = getRegionKey(PC.town);
+    const seasonTexts = REGION_SCENERY_TEXTS[currentRegion]?.[getSeasonKey()];
+    if(!seasonTexts || !seasonTexts.length){ showSaveToast('この地方・季節はテキスト未整備：'+currentRegion+'/'+getSeasonKey()); return; }
+    const desc = seasonTexts[Math.floor(Math.random()*seasonTexts.length)];
+    travelLog(`<span style=\'color:#b8a890\'>[DBG] ${desc}</span>`);
+    const choices = document.getElementById('choices');
+    choices.innerHTML='';
+    const okBtn=document.createElement('button'); okBtn.className='choice-btn'; okBtn.textContent='▶ 旅を続ける';
+    okBtn.onclick=()=>{ choices.innerHTML=''; travelState._resumeWithoutIncrement=true; setTimeout(_travelTickSched(), travelState.interval); };
+    choices.appendChild(okBtn);
+   })" class="dbg-btn" style="border-color:#446600;color:#88cc44">情景イベント発火</button>
+   <button onclick="dbg(()=>{
+    if(!travelState){ showSaveToast('旅行中のみ使用できます'); return; }
+    document.getElementById('debug-panel').style.display='none';
+    startMysteryLightEvent(travelState);
+   })" class="dbg-btn" style="border-color:#886600;color:#c8a44a">怪しい明かり発火</button>
+   <button onclick="dbg(()=>{
+    if(!travelState){ showSaveToast('旅行中のみ使用できます'); return; }
+    document.getElementById('debug-panel').style.display='none';
+    startTemptingResourceEvent(travelState);
+   })" class="dbg-btn" style="border-color:#886600;color:#c8a44a">魅力的なリソース発火</button>
+   <button onclick="dbg(()=>{
+    if(!travelState){ showSaveToast('旅行中のみ使用できます'); return; }
+    document.getElementById('debug-panel').style.display='none';
+    startTollEvent(travelState);
+   })" class="dbg-btn" style="border-color:#886600;color:#c8a44a">通行料イベント発火</button>
+   <button onclick="dbg(()=>{
+    if(!travelState){ showSaveToast('旅行中のみ使用できます'); return; }
+    if(!PC._formerCompanions || !PC._formerCompanions.length){ showSaveToast('かつての仲間がいません（先に解散させてください）'); return; }
+    document.getElementById('debug-panel').style.display='none';
+    startReunionEvent(travelState);
+   })" class="dbg-btn" style="border-color:#446688;color:#88aacc">再会イベント発火</button>
+   <button onclick="dbg(()=>{
+    if(!travelState){ showSaveToast('旅行中のみ使用できます'); return; }
+    if(!loadImportedNPCs().length){ showSaveToast('インポートNPCプールが空です'); return; }
+    document.getElementById('debug-panel').style.display='none';
+    startImportedNPCEncounter(travelState);
+   })" class="dbg-btn" style="border-color:#446688;color:#88aacc">インポートNPC遭遇を強制発動</button>
+   <button onclick="dbg(()=>{
+    const before = (PC._formerCompanions||[]).filter(n=>!n._dead).length;
+    checkFormerCompanionDeaths();
+    const after = (PC._formerCompanions||[]).filter(n=>!n._dead).length;
+    showSaveToast(`かつての仲間チェック実行：存命 ${before}人→${after}人`);
+   })" class="dbg-btn" style="border-color:#446688;color:#88aacc">仲間の死亡判定を実行</button>
+   <button onclick="dbg(()=>{ document.getElementById('debug-panel').style.display='none'; fcDebugHeroRumor('old'); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">酒場の噂：過去の英雄（死後50〜99年）</button>
+   <button onclick="dbg(()=>{ document.getElementById('debug-panel').style.display='none'; fcDebugHeroRumor('forgotten'); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">酒場の噂：過去の英雄（死後100年以上・エルフ）</button>
+   <button onclick="dbg(()=>{ document.getElementById('debug-panel').style.display='none'; wildDebugStart(); })" class="dbg-btn" style="border-color:#688848;color:#a8c888">荒野：カザーヌ→イェルドゥン街道の中央（25日目）から荒野に入る</button>
+   <button onclick="dbg(()=>{ document.getElementById('debug-panel').style.display='none'; wildDebugStart2(); })" class="dbg-btn" style="border-color:#688848;color:#a8c888">荒野：カザーヌ→ポートアルゴン（地方内・1マス1日）の途中から入る</button>
+   <button onclick="dbg(()=>{ troupeDebugStatus(); })" class="dbg-btn" style="border-color:#886644;color:#c8a878">旅芸人：各地方の一座の状況を一覧表示</button>
+   <button onclick="dbg(()=>{ if(troupeDebugSummon()){ document.getElementById('debug-panel').style.display='none'; go('TOWN_'+PC.town.toUpperCase()); } })" class="dbg-btn" style="border-color:#886644;color:#c8a878">旅芸人：この地方の一座を現在地に呼ぶ（募集中）</button>
+   <button onclick="dbg(()=>{ document.getElementById('debug-panel').style.display='none'; troupeDebugContract(); })" class="dbg-btn" style="border-color:#886644;color:#c8a878">旅芸人：護衛契約を警告なしで結ぶ</button>
+   <button onclick="dbg(()=>{ const c=PC._troupeContract, t=c&&PC._troupes[c.region]; if(!t){ showSaveToast('契約中ではありません'); return; } t.departDay=GAME_TIME.totalDays; showSaveToast('出発予定日を今日にしました'); })" class="dbg-btn" style="border-color:#886644;color:#c8a878">旅芸人：契約中の出発予定日を今日にする</button>
+   <button onclick="dbg(()=>{ const c=PC._troupeContract; if(!c){ showSaveToast('契約中ではありません'); return; } c.endDay=GAME_TIME.totalDays; document.getElementById('debug-panel').style.display='none'; go('TOWN_'+PC.town.toUpperCase()); })" class="dbg-btn" style="border-color:#886644;color:#c8a878">旅芸人：契約を今日で満了させる</button>
+   <button onclick="dbg(()=>{ troupeDebugSafety(-10); })" class="dbg-btn" style="border-color:#886644;color:#c8a878">旅芸人：無事度 -10</button>
+   <button onclick="dbg(()=>{ troupeDebugSafety(10); })" class="dbg-btn" style="border-color:#886644;color:#c8a878">旅芸人：無事度 +10</button>
+   <button onclick="dbg(()=>{ troupeDebugSafety('zero'); })" class="dbg-btn" style="border-color:#886644;color:#c8a878">旅芸人：無事度を0にする（契約失敗の確認）</button>
+   <button onclick="dbg(()=>{ troupeDebugEvent(); })" class="dbg-btn" style="border-color:#886644;color:#c8a878">旅芸人：町のイベントを指定して発生</button>
+   <button onclick="dbg(()=>{ fcDebugAddSamples(); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">元仲間：見本の4人を追加</button>
+   <button onclick="dbg(()=>{ fcDebugStatus(); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">元仲間：状態を一覧表示</button>
+   <button onclick="dbg(()=>{ fcDebugForgetWhereabouts(); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">元仲間：居場所を不明に戻す</button>
+   <button onclick="dbg(()=>{ document.getElementById('debug-panel').style.display='none'; fcDebugEncounterNow(); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">来訪：今すぐ登場させる</button>
+   <button onclick="dbg(()=>{ fcDebugSetVisit(3); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">来訪：3日後に到着する予約を入れる</button>
+   <button onclick="dbg(()=>{ document.getElementById('debug-panel').style.display='none'; fcDebugQuestion('report'); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">来訪の質問：報告（態度を選ぶ）</button>
+   <button onclick="dbg(()=>{ document.getElementById('debug-panel').style.display='none'; fcDebugQuestion('offer'); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">来訪の質問：申し出（態度を選ぶ）</button>
+   <button onclick="dbg(()=>{ document.getElementById('debug-panel').style.display='none'; fcDebugQuestion('reconcile'); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">来訪の質問：和解（態度を選ぶ）</button>
+   <button onclick="dbg(()=>{ document.getElementById('debug-panel').style.display='none'; fcDebugQuestion('child'); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">来訪の質問：子ども（態度を選ぶ）</button>
+   <button onclick="dbg(()=>{ document.getElementById('debug-panel').style.display='none'; fcDebugCall('settled'); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">元仲間を訪ねる：定住先の会話（態度を選ぶ）</button>
+   <button onclick="dbg(()=>{ document.getElementById('debug-panel').style.display='none'; fcDebugCall('roam'); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">元仲間を訪ねる：放浪先の酒場の会話（態度を選ぶ）</button>
+   <button onclick="dbg(()=>{ fcDebugLetter(); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">来訪：手紙を残させる</button>
+   <button onclick="dbg(()=>{ fcDebugTick(365); })" class="dbg-btn" style="border-color:#446688;color:#88aacc">来訪：判定を365日分実行</button>
+   <button onclick="dbg(()=>{
+    PC.lk = Math.max(PC.lk||0, 15);
+    document.getElementById('debug-panel').style.display='none';
+    document.getElementById('cbt-area').classList.remove('hidden');
+    const area = document.getElementById('cbt-ok-area');
+    if(area) area.style.display='block';
+    offerLuckSave('テストモンスター');
+   })" class="dbg-btn" style="border-color:#aa3322;color:#ff6644">九死に一生を強制発火</button>
+   <button onclick="dbg(()=>{
+    const list = (PC._injuries||[]).map(i=>i.name).join('、') || 'なし';
+    showSaveToast(`現在の後遺症：${list}　運:${PC.lk}　重武器制限:${PC._noHeavyWeapon?'あり':'なし'}　死線の硬直:${PC._deathKnellPanic?'あり':'なし'}`);
+   })" class="dbg-btn" style="border-color:#aa3322;color:#ff6644">後遺症の状態を確認</button>
+   <button onclick="dbg(()=>{
+    if(!travelState){ showSaveToast('旅行中のみ使用できます'); return; }
+    document.getElementById('debug-panel').style.display='none';
+    const mEnemy = pickMareaEnemy();
+    travelLog(`<span style='color:#b8a890'>[DBG] ${mEnemy.desc}</span>`);
+    const choices = document.getElementById('choices');
+    choices.innerHTML='';
+    const fightBtn=document.createElement('button'); fightBtn.className='choice-btn'; fightBtn.textContent=' 迎え撃つ';
+    fightBtn.onclick=()=>{ choices.innerHTML=''; _startMareaCombat(mEnemy, travelState); };
+    choices.appendChild(fightBtn);
+   })" class="dbg-btn" style="border-color:#886600;color:#c8a44a">マレアモンスター発火</button>
+   <button onclick="dbg(()=>{
+    document.getElementById('debug-panel').style.display='none';
+    PC.town='neria';
+    startNeriaChaosSiege();
+   })" class="dbg-btn" style="border-color:#aa3322;color:#ff6644">混沌の軍勢襲来発火</button>
+   <button onclick="dbg(()=>{
+    if(!PC._chaosNest){ showSaveToast('混沌の根城：未初期化（initChaosNest未実行）'); return; }
+    const n = PC._chaosNest;
+    if(!n.nestTownId){
+     showSaveToast(`混沌の根城：現在なし（次回発生予定日: ${n.nextSpawnDay ?? '不明'}日目 / 現在${GAME_TIME.totalDays}日目）`);
+     return;
+    }
+    const townName = (TOWNS[n.nestTownId]||{}).name || n.nestTownId;
+    const status = n.cleared ? '討伐済み（消滅）'
+     : n.defeatedByNPC ? `NPCが討伐済み（${n.npcDefeaterName||'?'}、噂残り${3-(n.npcRumorShown||0)}回）`
+     : '存在中（未討伐）';
+    showSaveToast(`混沌の根城：${townName}（${n.wizardTitle||''} ${n.wizardName||''}） 状態:${status}`);
+   })" class="dbg-btn" style="border-color:#aa3322;color:#ff6644">根城の状態を確認</button>
+   <button onclick="dbg(()=>{ showSaveToast('現在の季節：'+getSeasonKey()+'（'+getCurrentDate().month+'月）　地方：'+(getRegionKey(PC.town)||'（町の外/不明）')) })" class="dbg-btn">現在の季節/地方確認</button>
+   <button onclick="dbg(()=>{
+    const actor = _guildActor || PC;
+    if(!actor.spells) actor.spells=[];
+    if(!actor.spells.some(s=>s.name==='Overdrive')) actor.spells.push({...SPELLS_L4[0]});
+    updateHUD();
+    showSaveToast(actor.name+'にOverdriveを付与した');
+   })" class="dbg-btn" style="border-color:#446688;color:#88aacc">Overdrive付与</button>
+   <button onclick="dbg(()=>{
+    document.getElementById('debug-panel').style.display='none';
+    _showNPCImportMenu();
+   })" class="dbg-btn" style="border-color:#446688;color:#88aacc">NPCインポートプール確認</button>
+   <button onclick="dbg(()=>{
+    if(!PC.trust) initTrust(PC._startTown);
+    const t = getTrust(PC.town);
+    const townName = (TOWNS[PC.town]||{}).name || PC.town;
+    showSaveToast(`${townName}（${PC.town}）の信頼度: ${t}`);
+    console.log('PC.trust =', JSON.parse(JSON.stringify(PC.trust)));
+   })" class="dbg-btn" style="border-color:#446688;color:#88aacc">現在の町の信頼度を確認</button>
+  </div>
+
+  <!-- 手配度システム（NEW） -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 手配度（NEW） ──</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#0f0a06;border:1px solid #664433;border-radius:4px;padding:8px;margin-bottom:14px">
+   <button onclick="dbg(()=>{
+    const w = getWanted(PC.town);
+    const tier = wantedTier(PC.town);
+    const townName = (TOWNS[PC.town]||{}).name || PC.town;
+    showSaveToast(`${townName}（${PC.town}）の手配度: ${Math.round(w)}（${tier}）`);
+    console.log('PC.wanted =', JSON.parse(JSON.stringify(PC.wanted||{})));
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">現在の町の手配度を確認</button>
+   <button onclick="dbg(()=>{
+    changeWanted(PC.town, 100);
+    showSaveToast('この町の手配度を「高」にした');
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">手配度を「高」に</button>
+   <button onclick="dbg(()=>{
+    changeWanted(PC.town, 50);
+    showSaveToast('この町の手配度を「中」にした');
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">手配度を「中」に</button>
+   <button onclick="dbg(()=>{
+    _ensureWantedObject();
+    PC.wanted[PC.town] = 0;
+    showSaveToast('この町の手配度をリセットした');
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">手配度リセット</button>
+   <button onclick="dbg(()=>{
+    document.getElementById('debug-panel').style.display='none';
+    startWantedGuardAmbush(PC.town, wantedTier(PC.town)==='low' ? 'mid' : wantedTier(PC.town));
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">衛兵遭遇を強制発動</button>
+   <button onclick="dbg(()=>{
+    if(!travelState){ showSaveToast('旅行中のみ使用できます'); return; }
+    document.getElementById('debug-panel').style.display='none';
+    startBountyHunterEncounter(travelState);
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">賞金稼ぎ遭遇を強制発動</button>
+   <button onclick="dbg(()=>{
+    if((PC.party||[]).length >= 3){ showSaveToast('パーティが満員です'); return; }
+    document.getElementById('debug-panel').style.display='none';
+    startAdmirerEvent(PC.town);
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">憧れの若者イベントを強制発動</button>
+   <button onclick="dbg(()=>{
+    document.getElementById('debug-panel').style.display='none';
+    startRestInterruptCombat(PC.town);
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">休養中の襲撃を強制発動</button>
+   <button onclick="dbg(()=>{
+    _ensureWantedObject();
+    if(PC._infamyTowns) PC._infamyTowns[PC.town] = false;
+    PC.wanted[PC.town] = 99;
+    changeWanted(PC.town, 1);
+    document.getElementById('debug-panel').style.display='none';
+    go('TOWN_'+PC.town.toUpperCase());
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">極悪人イベントを強制発動</button>
+   <button onclick="dbg(()=>{
+    if(!PC._infamyTowns) PC._infamyTowns = {};
+    const regionKey = Object.keys(HERO_REGIONS).find(k=>HERO_REGIONS[k].towns.includes(PC.town)) || Object.keys(HERO_REGIONS)[0];
+    HERO_REGIONS[regionKey].towns.forEach(t=>{ PC._infamyTowns[t] = true; });
+    if(PC._infamyRegions) PC._infamyRegions[regionKey] = false;
+    checkRegionInfamy();
+    document.getElementById('debug-panel').style.display='none';
+    go('TOWN_'+PC.town.toUpperCase());
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">地方最悪の極悪人イベントを強制発動</button>
+  </div>
+
+  <!-- カルヴォ砦：防衛ゲージ確認・強制発動 -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── カルヴォ砦（NEW） ──</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#0f0a06;border:1px solid #664433;border-radius:4px;padding:8px;margin-bottom:14px">
+   <button onclick="dbg(()=>{
+    initBorderFort();
+    const bf = PC._borderFort;
+    showSaveToast('防衛度:'+Math.round(bf.gauge)+'/100　撃退累計:'+(bf.wavesRepelled||0)+'　出撃可:'+(canBorderFortSortie()?'可':'不可'));
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">防衛ゲージ確認</button>
+   <button onclick="dbg(()=>{
+    initBorderFort();
+    PC._borderFort.gauge = 100;
+    showSaveToast('防衛度を100に設定した');
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">ゲージ全快</button>
+   <button onclick="dbg(()=>{
+    initBorderFort();
+    PC._borderFort.gauge = BORDER_FORT_GAUGE_FLOOR;
+    showSaveToast('防衛度を下限('+BORDER_FORT_GAUGE_FLOOR+')に設定した');
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">ゲージ下限に</button>
+   <button onclick="dbg(()=>{
+    initBorderFort();
+    PC._borderFort.lastSortieDay = null;
+    showSaveToast('出撃クールダウンをリセットした');
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">出撃CDリセット</button>
+   <button onclick="dbg(()=>{
+    document.getElementById('debug-panel').style.display='none';
+    PC.town='kalvo';
+    go('TOWN_KALVO');
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">カルヴォ砦へ移動</button>
+   <button onclick="dbg(()=>{
+    document.getElementById('debug-panel').style.display='none';
+    PC.town='kalvo';
+    startKalvoSiege();
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">迎撃戦を強制発動</button>
+   <button onclick="dbg(()=>{
+    document.getElementById('debug-panel').style.display='none';
+    PC.town='kalvo';
+    initBorderFort();
+    PC._borderFort.lastSortieDay = null;
+    startBorderFortSortie();
+   })" class="dbg-btn" style="border-color:#a06030;color:#e0a060">出撃戦を強制発動</button>
+  </div>
+
+  <!-- 性格（アライメント） -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 性格リセット ──</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#0a000f;border:1px solid #443366;border-radius:4px;padding:8px;margin-bottom:14px">
+   <button onclick="dbg(()=>{PC.alignment_ethics=70;PC.alignment_order=70;updateHUD();showSaveToast('秩序にして善')})" class="dbg-btn" style="border-color:#336688;color:#88ccff">秩序・善</button>
+   <button onclick="dbg(()=>{PC.alignment_ethics=70;PC.alignment_order=0;updateHUD();showSaveToast('善良・中立')})" class="dbg-btn" style="border-color:#336688;color:#aaddff">善・中立</button>
+   <button onclick="dbg(()=>{PC.alignment_ethics=70;PC.alignment_order=-70;updateHUD();showSaveToast('混沌にして善')})" class="dbg-btn" style="border-color:#226644;color:#88ffcc">混沌・善</button>
+   <button onclick="dbg(()=>{PC.alignment_ethics=0;PC.alignment_order=70;updateHUD();showSaveToast('秩序・中立')})" class="dbg-btn" style="border-color:#554433;color:#ccbbaa">秩序・中立</button>
+   <button onclick="dbg(()=>{PC.alignment_ethics=0;PC.alignment_order=0;updateHUD();showSaveToast('真の中立')})" class="dbg-btn" style="border-color:#444444;color:#888888">真の中立</button>
+   <button onclick="dbg(()=>{PC.alignment_ethics=0;PC.alignment_order=-70;updateHUD();showSaveToast('混沌・中立')})" class="dbg-btn" style="border-color:#443366;color:#bb88ff">混沌・中立</button>
+   <button onclick="dbg(()=>{PC.alignment_ethics=-70;PC.alignment_order=70;updateHUD();showSaveToast('秩序にして悪')})" class="dbg-btn" style="border-color:#663322;color:#cc6644">秩序・悪</button>
+   <button onclick="dbg(()=>{PC.alignment_ethics=-70;PC.alignment_order=0;updateHUD();showSaveToast('邪悪・中立')})" class="dbg-btn" style="border-color:#663322;color:#ff8866">悪・中立</button>
+   <button onclick="dbg(()=>{PC.alignment_ethics=-70;PC.alignment_order=-70;updateHUD();showSaveToast('混沌にして悪')})" class="dbg-btn" style="border-color:#442244;color:#aa44aa">混沌・悪</button>
+  </div>
+
+  <!-- 都市移動 -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 都市移動 ──</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#0a000f;border:1px solid #443366;border-radius:4px;padding:8px;margin-bottom:14px">
+   <button onclick="dbg(()=>{PC.town='khazan';document.getElementById('debug-panel').style.display='none';go('TOWN_KHAZAN')})" class="dbg-btn">カザーヌ</button>
+   <button onclick="dbg(()=>{PC.town='port_argon';document.getElementById('debug-panel').style.display='none';go('TOWN_PORT_ARGON')})" class="dbg-btn">ポート</button>
+   <button onclick="dbg(()=>{PC.town='stonehiem';document.getElementById('debug-panel').style.display='none';go('TOWN_STONEHIEM')})" class="dbg-btn">ストーン</button>
+   <button onclick="dbg(()=>{PC.town='elsia';document.getElementById('debug-panel').style.display='none';go('TOWN_ELSIA')})" class="dbg-btn">エルマリア</button>
+   <button onclick="dbg(()=>{PC.town='al_rashid';document.getElementById('debug-panel').style.display='none';go('TOWN_AL_RASHID')})" class="dbg-btn">アル・ラシード</button>
+   <button onclick="dbg(()=>{PC.town='yeldun';document.getElementById('debug-panel').style.display='none';go('TOWN_YELDUN')})" class="dbg-btn">イェルドゥン</button>
+   <button onclick="dbg(()=>{PC.town='valdheim';document.getElementById('debug-panel').style.display='none';go('TOWN_VALDHEIM')})" class="dbg-btn">ヴァルドヘイム</button>
+   <button onclick="dbg(()=>{PC.town='neria';document.getElementById('debug-panel').style.display='none';go('TOWN_NERIA')})" class="dbg-btn">ネリア港</button>
+  </div>
+
+  <!-- 能力値テストテスト -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin-bottom:6px;letter-spacing:1px">── 能力値テストテスト ──</div>
+  <div style="background:#0a000f;border:1px solid #443366;border-radius:4px;padding:10px;margin-bottom:14px">
+   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:8px">
+    <select id="dbg-sr-attr" style="background:#150010;border:1px solid #553377;color:#cc88ff;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 4px);padding:4px;grid-column:span 2">
+     <option value="st">強さ</option><option value="iq">知力</option><option value="lk">運</option>
+     <option value="con">体力</option><option value="dex">器用さ</option><option value="chr">魅力</option><option value="spd">素早さ</option>
+    </select>
+    <select id="dbg-sr-lv" style="background:#150010;border:1px solid #553377;color:#cc88ff;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 4px);padding:4px">
+     <option value="1">Lv1</option><option value="2">Lv2</option><option value="3">Lv3</option><option value="4">Lv4</option>
+    </select>
+    <button onclick="dbgSR()" style="background:#1a0030;border:1px solid #664488;color:#cc88ff;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 4px);padding:4px;cursor:pointer;border-radius:3px">振る</button>
+   </div>
+   <div id="dbg-sr-result" style="font-size:calc(var(--font-sm) - 2px);color:var(--gray);min-height:18px;font-family:system-ui,sans-serif"></div>
+  </div>
+
+  <!-- 戦闘テスト -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin-bottom:6px;letter-spacing:1px">── 戦闘テスト ──</div>
+  <div style="background:#0a0800;border:1px solid var(--mud);border-radius:4px;padding:10px;margin-bottom:14px">
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+    <div>
+     <div style="color:var(--dim2);font-size:calc(var(--font-sm) - 4px);font-family:monospace;margin-bottom:3px">敵名</div>
+     <input id="dbg-enemy-name" value="テスト敵" style="background:#0a0800;border:1px solid #554400;color:var(--bronze);font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 4px);padding:5px;width:100%;box-sizing:border-box">
+    </div>
+    <div>
+     <div style="color:var(--dim2);font-size:calc(var(--font-sm) - 4px);font-family:monospace;margin-bottom:3px">CombatRating</div>
+     <input id="dbg-enemy-mr" type="number" value="30" style="background:#0a0800;border:1px solid #554400;color:var(--bronze);font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 4px);padding:5px;width:100%;box-sizing:border-box">
+    </div>
+    <div>
+     <div style="color:var(--dim2);font-size:calc(var(--font-sm) - 4px);font-family:monospace;margin-bottom:3px">防護値</div>
+     <input id="dbg-enemy-armor" type="number" value="0" style="background:#0a0800;border:1px solid #554400;color:var(--bronze);font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 4px);padding:5px;width:100%;box-sizing:border-box">
+    </div>
+    <div style="display:flex;align-items:flex-end">
+     <button onclick="dbgStartCombat()" style="background:#1a0a00;border:1px solid #664400;color:#cc8844;font-family:system-ui,sans-serif;font-size:calc(var(--font-sm) - 4px);padding:6px;cursor:pointer;border-radius:3px;width:100%">FIGHT!</button>
+    </div>
+   </div>
+  </div>
+
+  <!-- ダンジョンイベント -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin-bottom:6px;letter-spacing:1px">── ダンジョンイベント強制発動 ──</div>
+  <div id="dbg-event-list" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:14px"></div>
+
+  <!-- ダンジョントラップ -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin-bottom:6px;letter-spacing:1px">── ダンジョントラップ強制発動（全ダンジョン共通） ──</div>
+  <div id="dbg-trap-list" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:14px"></div>
+
+  <!-- 地方状態システム -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 地方状態システム（物流途絶度／治安悪化度／住民流出度） ──</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:14px">
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgShowRegionCondition();})" class="dbg-btn" style="border-color:#446688;color:#88aacc">状態を表示</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgSetRegionCondition();})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">値を指定して設定</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgAdvanceRegionConditionTick();})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">月次ティックを指定回数進める</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgResetRegionCondition();})" class="dbg-btn" style="border-color:#663322;color:#cc6644">全地方を0にリセット</button>
+  </div>
+
+  <!-- 連続クエスト（アーク） -->
+  <div style="color:var(--mid);font-size:calc(var(--font-sm) - 3px);font-family:monospace;margin:10px 0 6px;letter-spacing:1px">── 連続クエスト（アーク）A「消えた隊商」・B「偽りの依頼」・C「盗まれた品の行方」 ──</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:14px">
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStart('bandits');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">発端：野盗</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStart('monster');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">発端：魔獣</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStart('staged');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">発端：偽装</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStart();})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">A発端：ランダム</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartB('innocent');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">B発端：標的は無実</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartB('witness');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">B発端：口封じ</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartB('guilty');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">B発端：本当に悪党</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartC('thieves');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">C発端：盗賊の仕業</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartC('kin');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">C発端：身内の犯行</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartC('fence');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">C発端：故買商</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartE({});})" class="dbg-btn" style="border-color:#668866;color:#99dd99">E発端：ランダム</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartE({right:'unjust',loc:'carry',body:'evidence'});})" class="dbg-btn" style="border-color:#668866;color:#99dd99">E発端：不当な依頼（帳簿・携行）</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartE({right:'rightful',loc:'fence',body:'plan'});})" class="dbg-btn" style="border-color:#668866;color:#99dd99">E発端：正当な依頼（計画・故買商）</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartE({right:'ambiguous',loc:'shelter',body:'key'});})" class="dbg-btn" style="border-color:#668866;color:#99dd99">E発端：どちらとも（鍵・かくまわれ）</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartD('honest');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">D発端：説明どおり</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartD('swapped');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">D発端：目的のすり替え</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartD('betrayal');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">D発端：専門家の使い捨て</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartD('proxy');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">D発端：代理（黒幕）</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcStartD('traveler');})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">D発端：銀色の鍵（特別）</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcDWarp();})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">D：段階をいま進められる状態に</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcDLetter();})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">D：NPC2の手紙を届ける状態に</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcSeedForce();})" class="dbg-btn" style="border-color:#886622;color:#ffbb55">種を必ず残す（切替）</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcSeedNow();})" class="dbg-btn" style="border-color:#446688;color:#88aacc">種を今すぐ出せる状態に</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcSeedShow();})" class="dbg-btn" style="border-color:#446688;color:#88aacc">続編の種を表示</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcSkip(30);})"   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcSkip(30);})" class="dbg-btn" style="border-color:#446688;color:#88aacc">+30日進める</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcSkip(90);})" class="dbg-btn" style="border-color:#446688;color:#88aacc">+90日進める</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcShow();})" class="dbg-btn" style="border-color:#446688;color:#88aacc">アーク状態を表示</button>
+   <button onclick="dbg(()=>{document.getElementById('debug-panel').style.display='none';dbgArcClear();})" class="dbg-btn" style="border-color:#663322;color:#cc6644">アークを全消去</button>
+  </div>
+
+ </div>
+</div>
+</body>
+</html
